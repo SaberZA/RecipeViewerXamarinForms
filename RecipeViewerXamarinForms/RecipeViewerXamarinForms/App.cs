@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-
+using RecipeViewerXamarinForms.ORM;
 using Xamarin.Forms;
 
 namespace RecipeViewerXamarinForms
 {
     public class App : Application
     {
+        
+
         public App()
         {
             // The root page of your application
@@ -30,6 +35,13 @@ namespace RecipeViewerXamarinForms
         protected override void OnStart()
         {
             // Handle when your app starts
+            
+            var connection = DependencyService.Get<ISQLiteConnection>().GetConnection();
+            var testSqlLiteAndroid = new TestSqlLite(connection);
+            
+            testSqlLiteAndroid.SetupTestDb();
+            var recipesFromDb = testSqlLiteAndroid.GetRecipesFromDb();
+            Debug.WriteLine(String.Join(",",recipesFromDb.Select(p=>p.Name)));
         }
 
         protected override void OnSleep()

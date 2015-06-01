@@ -23,3 +23,11 @@ C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeVie
 C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\obj\Debug\res\drawable-xxhdpi\icon.png
 C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\obj\Debug\R.cs.flag
 C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\obj\Debug\uploadflags.txt
+C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\bin\Debug\RecipeViewerXamarinForms.ORM.dll
+C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\bin\Debug\SQLite.Net.dll
+C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\bin\Debug\SQLite.Net.Platform.XamarinAndroid.dll
+C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\bin\Debug\RecipeViewerXamarinForms.ORM.pdb
+C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\bin\Debug\SQLite.Net.pdb
+C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\bin\Debug\SQLite.Net.Platform.XamarinAndroid.pdb
+C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\bin\Debug\SQLite.Net.dll.mdb
+C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\bin\Debug\SQLite.Net.Platform.XamarinAndroid.dll.mdb
