@@ -81,6 +81,7 @@ class MonoPackageManager_Resources {
 	public static final String[] Assemblies = new String[]{
 		"RecipeViewerXamarinForms.Droid.dll",
 		"FormsViewGroup.dll",
+		"Mindscape.Raygun4Net.Xamarin.Android.dll",
 		"RecipeViewerXamarinForms.dll",
 		"SQLite.Net.dll",
 		"SQLite.Net.Platform.XamarinAndroid.dll",

@@ -37,11 +37,14 @@ namespace RecipeViewerXamarinForms
             // Handle when your app starts
             
             var connection = DependencyService.Get<ISQLiteConnection>().GetConnection();
+            DependencyService.Get<ILogger>().LoadLogger();
+
             var testSqlLiteAndroid = new TestSqlLite(connection);
             
             testSqlLiteAndroid.SetupTestDb();
             var recipesFromDb = testSqlLiteAndroid.GetRecipesFromDb();
             Debug.WriteLine(String.Join(",",recipesFromDb.Select(p=>p.Name)));
+            throw new Exception("Testing Raygun from local PC");
         }
 
         protected override void OnSleep()

@@ -1,5 +1,6 @@
 C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\bin\Debug\RecipeViewerXamarinForms.Droid.dll
 C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\packages\Xamarin.Forms.1.3.3.6323\lib\MonoAndroid10\FormsViewGroup.dll
+C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\packages\Mindscape.Raygun4Net.5.0.2\lib\MonoAndroid2.2\Mindscape.Raygun4Net.Xamarin.Android.dll
 C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\bin\Debug\RecipeViewerXamarinForms.dll
 C:\Apps\SQLite.Net-PCL\src\SQLite.Net\bin\Release\SQLite.Net.dll
 C:\Apps\SQLite.Net-PCL\src\SQLite.Net.Platform.XamarinAndroid\bin\Debug\SQLite.Net.Platform.XamarinAndroid.dll

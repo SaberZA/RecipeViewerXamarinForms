@@ -31,3 +31,7 @@ C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeVie
 C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\bin\Debug\SQLite.Net.Platform.XamarinAndroid.pdb
 C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\bin\Debug\SQLite.Net.dll.mdb
 C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\bin\Debug\SQLite.Net.Platform.XamarinAndroid.dll.mdb
+C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\bin\Debug\Mindscape.Raygun4Net.Xamarin.Android.dll
+C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\bin\Debug\Mindscape.Raygun4Net.Xamarin.Android.pdb
+C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\bin\Debug\RecipeViewerXamarinForms.ORM.dll.mdb
+C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.Droid\bin\Debug\Mindscape.Raygun4Net.Xamarin.Android.dll.mdb
