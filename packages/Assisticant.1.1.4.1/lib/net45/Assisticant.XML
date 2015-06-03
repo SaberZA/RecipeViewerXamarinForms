@@ -1,0 +1,740 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Assisticant</name>
+    </assembly>
+    <members>
+        <member name="T:Assisticant.Collections.ComputedDictionary`2">
+            <summary>A dictionary tied to a computed sentry.</summary>
+            <remarks>
+            To use ComputedDictionary, you must pass a method to the constructor whose 
+            job is to choose the contents of the dictionary (either as a list of key-
+            value pairs, or as an object that implements <see cref="T:System.Collections.Generic.IDictionary`2"/>).
+            </remarks>
+        </member>
+        <member name="M:Assisticant.Collections.ComputedDictionary`2.#ctor(System.Func{System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{`0,`1}}})">
+            <summary>Initializes ComputedDictionary.</summary>
+            <param name="updateCollection">A method that is called to choose the 
+            contents of the dictionary.</param>
+            <remarks>
+            The update method will be called automatically when someone accesses the 
+            dictionary, and either (1) it is being accessed for the first time, or
+            (2) one of the precedents (Computed and Observable sentries) that were 
+            accessed by updateCollection() has changed since the last time it was
+            called.
+            <para/>
+            ComputedDictionary assumes that the "keys" are stateless objects that
+            do not require recycling, but that values do require recycling. If the
+            values are stateless, you will get better performance if you disable 
+            recycling by adding a "false" parameter to the constructor, especially 
+            if 'updateCollection' returns a dictionary directly. However, if the 
+            values are viewmodels that contain state (such as an "is selected" 
+            flag), and 'updateCollection' itself doesn't preserve this state, then 
+            you should use recycling (which is the default) so that the extra state 
+            information is not lost during updates.
+            </remarks>
+        </member>
+        <member name="T:Assisticant.Collections.Impl.UpdateCollectionHelper`1">
+            <summary>Helper structure used by ComputedDictionary and 
+            ObservableDictionary to represent the "Keys" and "Values" members.</summary>
+            <remarks>
+            If you save a reference to the Keys or Values property of <see cref="T:Assisticant.Collections.ObservableDictionary`2"/>,
+            the observable sentry should be informed when that collection is accessed. 
+            This helper class ensures that the sentry is notified.
+            <para/>
+            For <see cref="T:Assisticant.Collections.ComputedDictionary`2"/>, this class is even more 
+            important. Whenever ComputedDictionary is updated, a new dictionary is 
+            created to hold the updated content, so the Keys and Values collections 
+            change frequently. This wrapper ensure that you do not accidentally hold 
+            a reference to an out-of-date version of the Keys or Values collection. 
+            It also ensures that the dictionary is updated if necessary when it is 
+            accessed through the Keys or Values collection.
+            </remarks>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:Assisticant.Computed" -->
+        <member name="T:Assisticant.Precedent">
+            <summary>
+            Base class for <see cref="T:Assisticant.Observable"/> and <see cref="T:Assisticant.Computed"/> sentries.
+            </summary>
+            <threadsafety static="true" instance="true"/>
+            <remarks>
+            This class is for internal use only.
+            </remarks>
+        </member>
+        <member name="M:Assisticant.Precedent.GainDependent">
+            <summary>
+            Method called when the first dependent references this field. This event only
+            fires when HasDependents goes from false to true. If the field already
+            has dependents, then this event does not fire.
+            </summary>
+        </member>
+        <member name="M:Assisticant.Precedent.LoseDependent">
+            <summary>
+            Method called when the last dependent goes out-of-date. This event
+            only fires when HasDependents goes from true to false. If the field has
+            other dependents, then this event does not fire. If the dependent is
+            currently updating and it still depends upon this field, then the
+            GainComputed event will be fired immediately.
+            </summary>
+        </member>
+        <member name="M:Assisticant.Precedent.RecordDependent">
+            <summary>
+            Establishes a relationship between this precedent and the currently
+            updating dependent.
+            </summary>
+        </member>
+        <member name="M:Assisticant.Precedent.MakeDependentsOutOfDate">
+            <summary>
+            Makes all direct and indirect dependents out of date.
+            </summary>
+        </member>
+        <member name="P:Assisticant.Precedent.HasDependents">
+            <summary>
+            True if any other fields depend upon this one.
+            </summary>
+            <remarks>
+            If any dependent field has used this observable field while updating,
+            then HasDependents is true. When that dependent becomes out-of-date,
+            however, it no longer depends upon this field.
+            <para/>
+            This property is useful for caching. When all dependents are up-to-date,
+            check this property for cached fields. If it is false, then nothing
+            depends upon the field, and it can be unloaded. Be careful not to
+            unload the cache while dependents are still out-of-date, since
+            those dependents may in fact need the field when they update.
+            </remarks>
+        </member>
+        <member name="P:Assisticant.Precedent.DebugMode">
+            <summary>Gets or sets a flag that allows extra debug features.</summary>
+            <remarks>
+            This flag currently just controls automatic name detection for untitled
+            NamedObservables, and other precedents that were created without a name 
+            by calling <see cref="M:Assisticant.Observable.New"/>() or <see cref="M:Assisticant.Computed.New(System.Action)"/>(),
+            including dependents created implicitly by <see cref="!:GuiUpdateHelper"/>.
+            <para/>
+            DebugMode should be enabled before creating any Assisticant sentries,
+            otherwise some of them may never get a name. For example, if 
+            Indepedent.New() is called (without arguments) when DebugMode is false, 
+            a "regular" <see cref="T:Assisticant.Observable"/> is created that is incapable of 
+            having a name.
+            <para/>
+            DebugMode may slow down your program. In particular, if you use named 
+            observables (or <see cref="!:Observable&lt;T&gt;"/>) but do not explicitly 
+            specify a name, DebugMode will cause them to compute their names based 
+            on a stack trace the first time OnGet() is called; this process is
+            expensive if it is repeated for a large number of Observables.
+            </remarks>
+        </member>
+        <member name="M:Assisticant.Computed.#ctor(System.Action)">
+            <summary>
+            Creates a new computed sentry with a given update procedure.
+            <seealso cref="!:UpdateProcedure"/>
+            </summary>
+            <param name="update">The procedure that updates the value of the controled field.</param>
+            <remarks>
+            The update parameter is allowed to be null, so that derived classes
+            can initialize properly. Due to a limitation of C#, an Update method 
+            defined in a derived class can't be passed to the constructor of the 
+            base class. Instead, update must be null and the _update member must 
+            be set afterward.
+            </remarks>
+        </member>
+        <member name="M:Assisticant.Computed.OnGet">
+            <summary>
+            Call this method before reading the value of a controlled field.
+            </summary>
+            <remarks>
+            If the controlled field is out-of-date, this function calls the
+            update procedure to bring it back up-to-date. If another computed
+            is currently updating, that computed depends upon this one; when this
+            computed goes out-of-date again, that one does as well.
+            </remarks>
+        </member>
+        <member name="M:Assisticant.Computed.Dispose">
+            <summary>
+            Call this method to tear down dependencies prior to destroying
+            the computed.
+            </summary>
+            <remarks>
+            While it is not absolutely necessary to call this method, doing
+            so can help the garbage collector to reclaim the object. While
+            the computed is up-to-date, all of its precedents maintain
+            pointers. Calling this method destroys those pointers so that
+            the computed can be removed from memory.
+            </remarks>
+        </member>
+        <member name="M:Assisticant.Computed.Touch">
+            <summary>
+            Bring the computed up-to-date, but don't take a dependency on it. This is
+            useful for pre-loading properties of an object as it is created. It avoids
+            the appearance of a list populated with empty objects while properties
+            of that object are loaded.
+            </summary>
+        </member>
+        <member name="E:Assisticant.Computed.Invalidated">
+            <summary>
+            Event fired when the computed becomes out-of-date.
+            <remarks>
+            This event should not call <see cref="M:Assisticant.Computed.OnGet"/>. However, it should
+            set up the conditions for OnGet to be called. For example, it could
+            invalidate a region of the window so that a Paint method later calls
+            OnGet, or it could signal a thread that will call OnGet.
+            </remarks>
+            </summary>
+        </member>
+        <member name="P:Assisticant.Computed.UpdateMethod">
+            <summary>Gets the update method.</summary>
+            <remarks>This property is used by GuiUpdateHelper.</remarks>
+        </member>
+        <member name="P:Assisticant.Computed.IsUpToDate">
+            <summary>
+            Read only property that is true when the computed is up-to-date.
+            </summary>
+        </member>
+        <member name="P:Assisticant.Computed.IsNotUpdating">
+            <summary>
+            Read only property that is true when the computed is not updating.
+            </summary>
+        </member>
+        <member name="P:Assisticant.Computed.UsedBy">
+            <summary>Intended for the debugger. Returns a tree of Computeds that 
+            use this Computed.</summary>
+            <remarks>UsedBy is defined separately in Observable and Computed so 
+            that the user doesn't have to drill down to the final base class, 
+            Precedent, in order to view this property.</remarks>
+        </member>
+        <member name="P:Assisticant.Computed.Uses">
+            <summary>Intended for the debugger. Returns a tree of Precedents that 
+            were accessed when this Computed was last updated.</summary>
+        </member>
+        <member name="P:Assisticant.Computed.UsesSummary">
+            <summary>Intended for the debugger. Returns a tree of Precedents that 
+            were accessed when this Computed was last updated, collapsed so that
+            all precedents that have the same name are shown as a single item.</summary>
+        </member>
+        <member name="T:Assisticant.Computed.PrecedentVisualizer">
+            <summary>Helper class, intended to be viewed in the debugger, that 
+            shows a list of Computeds and Observables that are used by this 
+            Computed.</summary>
+        </member>
+        <member name="T:Assisticant.Computed.LeafVisualizer">
+            <summary>Helper class, used by <see cref="T:Assisticant.Computed.PrecedentVisualizer"/>, whose 
+            ToString() method shows [I] plus the "extended name" of an Observable.</summary>
+        </member>
+        <member name="T:Assisticant.Computed.PrecedentSummarizer">
+            <summary>Helper class, intended to be viewed in the debugger, that is 
+            similar to PrecedentVisualizer except that it collapses all precedents 
+            with the same name into a single entry.</summary>
+        </member>
+        <member name="T:Assisticant.Observable">
+             <summary>
+             A sentry that controls an observable field.
+             </summary>
+             <threadsafety static="true" instance="true"/>
+             <remarks>
+             An observable field is one whose value can be changed externally at
+             any time. Create one Observable sentry for each observable field in
+             your object.
+             </remarks>
+             <example>A class using Observable sentries.
+             <code language="C">
+            	public class Contact
+            	{
+            		private string _name = "";
+            		private string _emailAddress = "";
+            		
+            		private Observable _indName = new Observable();
+            		private Observable _indEmailAddress = new Independet();
+            
+            		public Contact()
+            		{
+            		}
+            
+            		public string Name
+            		{
+            			get
+            			{
+            				_indName.OnGet();
+            				return _name;
+            			}
+            			set
+            			{
+            				_indName.OnSet();
+            				_name = value;
+            			}
+            		}
+            
+            		public string EmailAddress
+            		{
+            			get
+            			{
+            				_indEmailAddress.OnGet();
+            				return _emailAddress;
+            			}
+            			set
+            			{
+            				_indEmailAddress.OnSet();
+            				_emailAddress = value;
+            			}
+            		}
+            	}
+             </code>
+             <code language="VB">
+            	Public Class Contact
+            		Private _name As String = ""
+            		Private _emailAddress As String = ""
+            
+            		Private _indName As New Observable()
+            		Private _indEmailAddress As New Observable()
+            
+            		Public Sub New()
+            		End Sub
+            
+            		Public Property Name() As String
+            			Get
+            				_indName.OnGet()
+            				Return _name
+            			End Get
+            			Set
+            				_indName.OnSet()
+            				_name = value
+            			End Set
+            		End Property
+            
+            		Public Property EmailAddress() As String
+            			Get
+            				_indEmailAddress.OnGet()
+            				Return _emailAddress
+            			End Get
+            			Set
+            				_indEmailAddress.OnSet()
+            				_emailAddress = value
+            			End Set
+            		End Property
+            	End Class
+             </code>
+             </example>
+        </member>
+        <member name="M:Assisticant.Observable.OnGet">
+            <summary>
+            Call this function just before getting the field that this
+            sentry controls.
+            </summary>
+            <remarks>
+            Any computed fields that are currently updating will depend upon
+            this field; when the field changes, the computed becomes
+            out-of-date.
+            </remarks>
+        </member>
+        <member name="M:Assisticant.Observable.OnSet">
+            <summary>
+            Call this function just before setting the field that this
+            sentry controls.
+            </summary>
+            <remarks>
+            Any computed fields that depend upon this field will become
+            out-of-date.
+            </remarks>
+        </member>
+        <member name="P:Assisticant.Observable.UsedBy">
+            <summary>Intended for the debugger. Returns a tree of Computeds that 
+            use this Computed.</summary>
+        </member>
+        <member name="T:Assisticant.MemoizedTypeName">
+            <summary>.NET Framework reflection doesn't offer complete type names for 
+            generic types such as "List&lt;int&gt;" (the Type.Name value of that class is 
+            "List`1"). <see cref="M:Assisticant.MemoizedTypeName.GenericName(System.Type)"/> fills in the gap, and also saves the 
+            computed name for fast repeated lookups.</summary>
+        </member>
+        <member name="M:Assisticant.MemoizedTypeName.GenericName(System.Type)">
+            <summary>Computes a short language-agnostic name for a type, including 
+            generic parameters, e.g. GenericName(typeof(int)) is "Int32"; 
+            GenericName(typeof(Dictionary&lt;int, string>)) is 
+            "Dictionary&lt;Int32, String>".</summary>
+            <param name="type">Type whose name you want</param>
+            <returns>Name with generic parameters, as explained in the summary.</returns>
+            <remarks>The result is memoized for generic types, so that the name is
+            computed only once.</remarks>
+        </member>
+        <member name="M:Assisticant.MemoizedTypeName.ComputeGenericName(System.Type)">
+            <summary>Computes a type's name without memoization.</summary>
+        </member>
+        <member name="M:Assisticant.MemoizedTypeName.NameWithGenericParams(System.Type)">
+            <summary>Extension method on Type that is an alias for the <see cref="!:ShortName"/> method.</summary>
+        </member>
+        <member name="T:Assisticant.RecycleBin`1">
+            <summary>
+            A collection that maps new objects to old, equivalent versions of the
+            same objects. It is typically used with LINQ during a Computed update.
+            </summary>
+            <typeparam name="T">Type of object to recycle. When using the MVVM design
+            pattern, T is typically a type of view-model that wraps around a model
+            type.</typeparam>
+            <remarks>
+            This class helps implement the MVVM pattern with Assisticant. In this
+            pattern, you typically write a "Model" class which contains all the state
+            information for your models, and a "ViewModel" class which is a thin 
+            wrapper around the Model. The ViewModel should be stateless, except for
+            temporary information that is only meaningful in the GUI, such as an 
+            "IsSelected" flag that represents whether the ViewModel is selected in
+            a ListBox.
+            <para/>
+            In the Assisticant paradigm, you will typically create (at most) one
+            ViewModel object for each Model, and some kind of computed collection is 
+            used to keep the set of ViewModels synchronized with the set of Models. 
+            RecycleBin plays an important role in this paradigm. If you use a class 
+            such as <see cref="T:Assisticant.Collections.ComputedList`1"/>, it will use a RecycleBin for you,
+            but if you use <see cref="T:Assisticant.Computed"/> directly then you may need to 
+            create a RecycleBin yourself.
+            <para/>
+            RecycleBin has two purposes: (1) it disposes old objects that are no 
+            longer in use, if T implements IDisposable; and (2) it preserves any state 
+            information in the ViewModel wrappers.
+            <para/>
+            Typical usage is as follows: you first construct a RecycleBin within a 
+            <see cref="T:Assisticant.Computed"/>'s update function (assuming that the Computed 
+            controls a collection.) You fill the recycle bin with the old contents 
+            of your collection of ViewModels, then construct a new collection of 
+            ViewModels (from scratch, e.g. using a LINQ query over your models), and 
+            pass each new ViewModel through the <see cref="M:Assisticant.RecycleBin`1.Extract(`0)"/> method. If 
+            the new ViewModel represents a Model that was in the old collection, 
+            Extract returns the old ViewModel; otherwise it returns the new ViewModel.
+            This ensures that the ViewModel state is preserved. For example, if your 
+            ViewModel has an IsSelected flag, then failing to use a RecycleBin would 
+            cause any selected objects to become deselected whenever the Computed 
+            is updated (assuming IsSelected is false by default).
+            <para/>
+            The recycle bin extracts objects based on a prototype. If
+            the recycle bin contains an object matching the prototype
+            according to <see cref="M:System.Object.GetHashCode"/> and
+            <see cref="M:System.Object.Equals(System.Object)"/>, then that matching object
+            is extracted. If not, the prototype itself is used. It is
+            imperitive that you properly implement GetHashCode and
+            Equals in your recycled classes.
+            <para/>
+            If T is a ViewModel class, then it generally suffices for T.GetHashCode 
+            to call GetHashCode on the wrapped Model, and for T.Equals to compare
+            the two wrapped objects for equality.
+            <para/>
+            In general, your implementation of GetHashCode and Equals must only 
+            consider fields that do not change. If a field can be changed, or is
+            itself computed, then it must not be used either as part of the
+            hash code, or to determine equality. The best practice is to
+            implement GetHashCode and Equals in terms of fields that are
+            initialized by the constructor, and are thereafter immutable.
+            <para/>
+            The advantage of RecycleBin is not found in any time or memory savings.
+            In fact, using RecycleBin in most cases adds a small amount of overhead.
+            However, the advantage comes from preserving the dynamic and
+            computed state of the recycled objects. If your depenent collection
+            contains only immutable objects (such as strings), there is no
+            advantage to using a RecycleBin.
+            </remarks>
+        </member>
+        <member name="M:Assisticant.RecycleBin`1.#ctor">
+            <summary>
+            Creates an empty recycle bin.
+            </summary>
+            <remarks>
+            The recycle bin should be filled with objects from a computed
+            collection, and the collection should be emptied. Then it can be
+            repopulated by extraction from the bin.
+            </remarks>
+        </member>
+        <member name="M:Assisticant.RecycleBin`1.#ctor(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Creates an recycle bin containing the specified objects.
+            </summary>
+        </member>
+        <member name="M:Assisticant.RecycleBin`1.AddObject(`0)">
+            <summary>
+            Add an object to the recycle bin.
+            </summary>
+            <param name="recyclableObject">The object to put in the recycle bin.</param>
+        </member>
+        <member name="M:Assisticant.RecycleBin`1.Extract(`0)">
+            <summary>
+            If a matching object is in the recycle bin, remove and return it.
+            Otherwise, return the prototype.
+            </summary>
+            <param name="prototype">An object equal to the one to be extracted.</param>
+            <returns>The matching object that was added to the recycle bin, or
+            the prototype if no such object is found.</returns>
+        </member>
+        <member name="M:Assisticant.RecycleBin`1.Dispose">
+            <summary>
+            Disposes all objects remaining in the recycle bin.
+            </summary>
+            <remarks>
+            Call this method at the end of the update function. Any objects
+            that have not been recycled will be disposed, thus removing any
+            dependencies they may have. This allows cached objects to be
+            unloaded and garbage collected.
+            </remarks>
+        </member>
+        <member name="M:Assisticant.AssisticantExtensions.Recycle``1(System.Collections.Generic.ICollection{``0})">
+            <summary>
+            Moves all objects into a new recycle bin, from which they can be extracted.
+            </summary>
+            <param name="objects">A collection of objects to add to the bin.</param>
+            <remarks>
+            After the objects are added to the bin, the collection
+            is cleared. Then it can be repopulated by extraction from
+            the bin.
+            </remarks>
+        </member>
+        <member name="T:Assisticant.Timers.FloatingDateTime">
+            <summary>
+            Represents point in time relative to current time. As real wall clock ticks, FloatingDateTime floats with it, maintaining constant FloatDelta from current time.
+            </summary>
+        </member>
+        <member name="M:Assisticant.Timers.FloatingDateTime.Add(System.TimeSpan)">
+            <summary>
+            Creates new FloatingDateTime that corresponds to point in time that is shifted into future relative to this FloatingDateTime.
+            </summary>
+            <param name="timespan">How much to shift the FloatingDateTime into future. Negative to shift into past.</param>
+            <returns>FloatingDateTime shifted into future.</returns>
+        </member>
+        <member name="M:Assisticant.Timers.FloatingDateTime.Add(Assisticant.Timers.DroppingTimeSpan)">
+            <summary>
+            Adds DroppingTimeSpan to the FloatingDateTime. The result is a stationary DateTime since the floating component of both inputs is cancelled out.
+            </summary>
+            <param name="timespan">DroppingTimeSpan to add to the FloatingDateTime.</param>
+            <returns>Point in time equal to adding Snapshot properties of both inputs.</returns>
+        </member>
+        <member name="M:Assisticant.Timers.FloatingDateTime.AddDays(System.Double)">
+            <summary>
+            Shifts the FloatingDateTime into future by the specified number of days.
+            </summary>
+            <param name="days">How many days to shift the FloatingDateTime into future. Negative to shift into past.</param>
+            <returns>FloatingDateTime shifted by the specified number of days.</returns>
+        </member>
+        <member name="M:Assisticant.Timers.FloatingDateTime.AddHours(System.Double)">
+            <summary>
+            Shifts the FloatingDateTime into future by the specified number of hours.
+            </summary>
+            <param name="hours">How many hours to shift the FloatingDateTime into future. Negative to shift into past.</param>
+            <returns>FloatingDateTime shifted by the specified number of hours.</returns>
+        </member>
+        <member name="M:Assisticant.Timers.FloatingDateTime.AddMinutes(System.Double)">
+            <summary>
+            Shifts the FloatingDateTime into future by the specified number of minutes.
+            </summary>
+            <param name="minutes">How many minutes to shift the FloatingDateTime into future. Negative to shift into past.</param>
+            <returns>FloatingDateTime shifted by the specified number of minutes.</returns>
+        </member>
+        <member name="M:Assisticant.Timers.FloatingDateTime.AddSeconds(System.Double)">
+            <summary>
+            Shifts the FloatingDateTime into future by the specified number of seconds.
+            </summary>
+            <param name="seconds">How many seconds to shift the FloatingDateTime into future. Negative to shift into past.</param>
+            <returns>FloatingDateTime shifted by the specified number of seconds.</returns>
+        </member>
+        <member name="M:Assisticant.Timers.FloatingDateTime.AddMilliseconds(System.Double)">
+            <summary>
+            Shifts the FloatingDateTime into future by the specified number of milliseconds.
+            </summary>
+            <param name="milliseconds">How many milliseconds to shift the FloatingDateTime into future. Negative to shift into past.</param>
+            <returns>FloatingDateTime shifted by the specified number of milliseconds.</returns>
+        </member>
+        <member name="M:Assisticant.Timers.FloatingDateTime.AddTicks(System.Int64)">
+            <summary>
+            Shifts the FloatingDateTime into future by the specified number of ticks.
+            </summary>
+            <param name="ticks">How many ticks to shift the FloatingDateTime into future. Negative to shift into past.</param>
+            <returns>FloatingDateTime shifted by the specified number of ticks.</returns>
+        </member>
+        <member name="M:Assisticant.Timers.FloatingDateTime.Subtract(System.TimeSpan)">
+            <summary>
+            Creates new FloatingDateTime that corresponds to point in time that is shifted into past relative to this FloatingDateTime.
+            </summary>
+            <param name="timespan">How much to shift the FloatingDateTime into past. Negative to shift into future.</param>
+            <returns>FloatingDateTime shifted into past.</returns>
+        </member>
+        <member name="M:Assisticant.Timers.FloatingDateTime.Subtract(Assisticant.Timers.FloatingDateTime)">
+            <summary>
+            Calculates difference between two instances of FloatingDateTime. The result is a constant TimeSpan, because floating components cancel out.
+            </summary>
+            <param name="other">FloatingDateTime to subtract from this FloatingDateTime.</param>
+            <returns>Difference between this FloatingDateTime and the specified FloatingDateTime.</returns>
+        </member>
+        <member name="M:Assisticant.Timers.FloatingDateTime.Subtract(System.DateTime)">
+            <summary>
+            Calculates difference between the FloatingDateTime and stationary DateTime. The result is a RisingTimeSpan, which tracks the difference as the time progresses.
+            </summary>
+            <param name="other">Stationary DateTime to subtract from the FloatingDateTime.</param>
+            <returns>RisingTimeSpan that tracks the difference as the time progresses.</returns>
+        </member>
+        <member name="M:Assisticant.Timers.FloatingDateTime.Subtract(Assisticant.Timers.RisingTimeSpan)">
+            <summary>
+            Subtracts RisingTimeSpan from the FloatingDateTime. The result is a stationary DateTime since the floating component of both inputs is cancelled out.
+            </summary>
+            <param name="timespan">RisingTimeSpan to subtract from the FloatingDateTime.</param>
+            <returns>Point in time equal to subtracting RisingTimeSpan's Snapshot property from FloatingDateTime's Snapshot property.</returns>
+        </member>
+        <member name="M:Assisticant.Timers.FloatingDateTime.Floor(System.TimeSpan)">
+            <summary>
+            Rounds the FloatingDateTime down to the specified interval.
+            The result is a stationary DateTime that depends on current position of FloatingDateTime on time axis.
+            If used inside Assisticant view model, the view model will be reevaluated when the result of this method changes.
+            </summary>
+            <param name="interval">Rounding interval. For example, TimeSpan.FromSeconds(1) will round the FloatingDateTime down to nearest second.</param>
+            <returns>Current position of FloatingDateTime on time axis rounded down to the specified interval.</returns>
+        </member>
+        <member name="M:Assisticant.Timers.FloatingDateTime.Equals(Assisticant.Timers.FloatingDateTime)">
+            <summary>
+            Compares two FloatingDateTime instances for exact equality.
+            The result is constant since the tow FloatingDateTime instances move at the same rate and their relative position on time axis doesn't change.
+            </summary>
+            <param name="other">FloatingDateTime to compare against.</param>
+            <returns>Whether FloatingDateTime instances are exactly equal.</returns>
+        </member>
+        <member name="M:Assisticant.Timers.FloatingDateTime.Equals(System.DateTime)">
+            <summary>
+            Checks equality of current position of the FloatingDateTime on time axis with stationary DateTime.
+            If used inside Assisticant view model, the view model will be reevaluated when the result of the comparison changes.
+            Note that it is very unlikely for FloatingDateTime to be exactly equal to fixed point in time.
+            You should use CompareTo() methods or comparison operators to compare against time ranges.
+            </summary>
+            <param name="other">Stationary DateTime to compare against.</param>
+            <returns>Whether the FloatingDateTime current position on time axis equals the stationary DateTime.</returns>
+        </member>
+        <member name="M:Assisticant.Timers.FloatingDateTime.CompareTo(Assisticant.Timers.FloatingDateTime)">
+            <summary>
+            Compares two FloatingDateTime instances for inequality.
+            The result is constant since the tow FloatingDateTime instances move at the same rate and their relative position on time axis doesn't change.
+            </summary>
+            <param name="other">FloatingDateTime to compare against.</param>
+            <returns>
+            Returns -1 if this FloatingDateTime is earlier than the specified FloatingDateTime,
+            1 if this FloatingDateTime is later than the specified FloatingDateTime,
+            and 0 for exact equality.
+            </returns>
+        </member>
+        <member name="M:Assisticant.Timers.FloatingDateTime.CompareTo(System.DateTime)">
+            <summary>
+            Compares current position of the FloatingDateTime on time axis with stationary DateTime for inequality.
+            If used inside Assisticant view model, the view model will be reevaluated when the result of the comparison changes.
+            </summary>
+            <param name="other">FloatingDateTime to compare against.</param>
+            <returns>
+            Returns -1 if the FloatingDateTime is earlier than the specified DateTime,
+            1 if the FloatingDateTime is later than the specified DateTime,
+            and 0 for exact equality (which is very unlikely).
+            </returns>
+        </member>
+        <member name="P:Assisticant.Timers.FloatingDateTime.UtcNow">
+            <summary>
+            Gets FloatingDateTime that always represents current UTC time, i.e. calling Snapshot on it will always return DateTime.UtcNow.
+            </summary>
+        </member>
+        <member name="P:Assisticant.Timers.FloatingDateTime.Zone">
+            <summary>
+            Time zone of the FloatingDateTime. Every FloatingDateTime has associated FloatingTimeZone. Zone therefore cannot be null.
+            </summary>
+        </member>
+        <member name="P:Assisticant.Timers.FloatingDateTime.FloatDelta">
+            <summary>
+            Position of the FloatingDateTime on time axis relative to current time. Positive values indicate time in future. Negative values indicate past time.
+            This property is exactly equal to (this - Zone.Now).
+            </summary>
+        </member>
+        <member name="P:Assisticant.Timers.FloatingDateTime.Snapshot">
+            <summary>
+            Gets stationary DateTime that is equal to the FloatingDateTime at this point in time.
+            The returned DateTime remains constant after it is returned while this FloatingDateTime continues to float with current time.
+            Note that this property doesn't setup any Assisticant change notification, i.e. view models using this property won't update with fresh time.
+            It is recommended to use Floor() in order to have Assisticant view models reevaluated when the time moves significantly.
+            </summary>
+        </member>
+        <member name="P:Assisticant.Timers.FloatingDateTime.Date">
+            <summary>
+            Extracts date component from FloatingDateTime.
+            If used inside Assisticant view model, the view model will be reevaluated when this property changes.
+            </summary>
+        </member>
+        <member name="P:Assisticant.Timers.FloatingDateTime.Year">
+            <summary>
+            Extracts year component from FloatingDateTime.
+            If used inside Assisticant view model, the view model will be reevaluated when this property changes.
+            </summary>
+        </member>
+        <member name="P:Assisticant.Timers.FloatingDateTime.Month">
+            <summary>
+            Extracts month component from FloatingDateTime.
+            If used inside Assisticant view model, the view model will be reevaluated when this property changes.
+            </summary>
+        </member>
+        <member name="P:Assisticant.Timers.FloatingDateTime.Day">
+            <summary>
+            Extracts day of month component from FloatingDateTime.
+            If used inside Assisticant view model, the view model will be reevaluated when this property changes.
+            </summary>
+        </member>
+        <member name="P:Assisticant.Timers.FloatingDateTime.DayOfYear">
+            <summary>
+            Extracts day of year component from FloatingDateTime.
+            If used inside Assisticant view model, the view model will be reevaluated when this property changes.
+            </summary>
+        </member>
+        <member name="P:Assisticant.Timers.FloatingDateTime.DayOfWeek">
+            <summary>
+            Extracts day of week component from FloatingDateTime.
+            If used inside Assisticant view model, the view model will be reevaluated when this property changes.
+            </summary>
+        </member>
+        <member name="P:Assisticant.Timers.FloatingDateTime.Hour">
+            <summary>
+            Extracts hour component from FloatingDateTime.
+            If used inside Assisticant view model, the view model will be reevaluated when this property changes.
+            </summary>
+        </member>
+        <member name="P:Assisticant.Timers.FloatingDateTime.Minute">
+            <summary>
+            Extracts minute component from FloatingDateTime.
+            If used inside Assisticant view model, the view model will be reevaluated when this property changes.
+            </summary>
+        </member>
+        <member name="P:Assisticant.Timers.FloatingDateTime.Second">
+            <summary>
+            Extracts second component from FloatingDateTime.
+            If used inside Assisticant view model, the view model will be reevaluated when this property changes.
+            </summary>
+        </member>
+        <member name="T:Assisticant.MakeCommand">
+            <summary>
+            Creates a command object, which implements ICommand. Use the When (optional) and
+            Do (required) methods to specify the behavior of the command. Pass lambda expressions
+            taking no parameters into both methods. A lambda expression taking no parameters
+            looks like this: () => &lt;condition or {statement}&gt;
+            </summary>
+        </member>
+        <member name="M:Assisticant.MakeCommand.When(System.Func{System.Boolean})">
+            <summary>
+            Specify a condition under which the command can be executed. Controls bound to the
+            command will only be enabled when this condition is true. The condition is a lambda
+            taking no parameters and returning a boolean. The syntax looks like: () => SelectedThing != null
+            </summary>
+            <param name="condition">A lambda expression taking no parameters and returing a boolean: () => SelectedThing != null</param>
+            <returns>An object that you can add .Do to.</returns>
+        </member>
+        <member name="M:Assisticant.MakeCommand.Do(System.Action)">
+            <summary>
+            Specify an action to execute when the command is invoked. The action is a lambda
+            taking no parameters and performing a statement. The syntax looks like: () => { DoSomething(); }
+            </summary>
+            <param name="execute">A lambda expression taking no parameters and performing a statement. The
+            syntax looks like: () => { DoSomething(); }</param>
+            <returns>A command that does that.</returns>
+        </member>
+        <member name="M:Assisticant.MakeCommand.Condition.Do(System.Action)">
+            <summary>
+            Specify an action to execute when the command is invoked. The action is a lambda
+            taking no parameters and performing a statement. The syntax looks like: () => { DoSomething(); }
+            </summary>
+            <param name="execute">A lambda expression taking no parameters and performing a statement. The
+            syntax looks like: () => { DoSomething(); }</param>
+            <returns>A command that does that.</returns>
+        </member>
+    </members>
+</doc>

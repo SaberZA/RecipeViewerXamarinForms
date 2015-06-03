@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Assisticant.XAML</name>
+    </assembly>
+    <members>
+        <member name="M:Assisticant.ForView.Wrap(System.Object)">
+            <summary>
+            Wrap an object to be used as the DataContext of a view.
+            All of the properties of the object are available for
+            data binding with automatic updates.
+            </summary>
+            <param name="wrappedObject">The object to wrap for the view.</param>
+            <returns>An object suitable for data binding.</returns>
+        </member>
+        <member name="M:Assisticant.ForView.Unwrap``1(System.Object)">
+            <summary>
+            Unwrap a DataContext to get back to the original object.
+            </summary>
+            <typeparam name="TViewModel">The type of the object that was wrapped.</typeparam>
+            <param name="dataContext">The DataContext previously wrapped.</param>
+            <returns>The object originally wrapped, or null.</returns>
+        </member>
+    </members>
+</doc>

@@ -19,5 +19,6 @@ C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeVie
 C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.ORM\bin\Debug\SQLite.Net.Platform.XamarinIOS.Unified.pdb
 C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.ORM\bin\Debug\System.Data.SQLite.xml
 C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.ORM\bin\Debug\Sqlite.dll
+C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.ORM\obj\Debug\RecipeViewerXamarinForms.ORM.csprojResolveAssemblyReference.cache
 C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.ORM\obj\Debug\RecipeViewerXamarinForms.ORM.dll
 C:\Apps\XamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms\RecipeViewerXamarinForms.ORM\obj\Debug\RecipeViewerXamarinForms.ORM.pdb
