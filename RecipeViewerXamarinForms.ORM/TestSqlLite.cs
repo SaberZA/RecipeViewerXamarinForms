@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using SQLite.Net;
 using SQLite.Net.Interop;
-using SQLite.Net.Platform.XamarinAndroid;
 
 namespace RecipeViewerXamarinForms.ORM
 {

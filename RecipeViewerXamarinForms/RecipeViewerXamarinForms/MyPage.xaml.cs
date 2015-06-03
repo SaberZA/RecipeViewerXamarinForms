@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Xamarin.Forms;
+using RecipeViewerXamarinForms.ViewModels;
 
 namespace RecipeViewerXamarinForms
 {
@@ -15,6 +16,10 @@ namespace RecipeViewerXamarinForms
         {
             InitializeComponent();
             MainText = "Hello Xamarin";
+			BindingContext = new MyPageViewModel {
+				Message = "Hello Sweet World!"
+			};
+
 //            boxViewColor.Color = Color.Blue;
         }
     }

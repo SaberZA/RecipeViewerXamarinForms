@@ -40,35 +40,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="SQLite.Net">
-      <HintPath>..\..\..\..\SQLite.Net-PCL\src\SQLite.Net\bin\Release\SQLite.Net.dll</HintPath>
-    </Reference>
-    <Reference Include="SQLite.Net.Async">
-      <HintPath>..\..\..\..\SQLite.Net-PCL\src\SQLite.Net.Async\bin\Release\SQLite.Net.Async.dll</HintPath>
-    </Reference>
-    <Reference Include="SQLite.Net.Platform.Generic">
-      <HintPath>..\..\..\..\SQLite.Net-PCL\src\SQLite.Net.Platform.Generic\bin\Release\SQLite.Net.Platform.Generic.dll</HintPath>
-    </Reference>
-    <Reference Include="SQLite.Net.Platform.Win32">
-      <HintPath>..\..\..\..\SQLite.Net-PCL\src\SQLite.Net.Platform.Win32\bin\Release\SQLite.Net.Platform.Win32.dll</HintPath>
-    </Reference>
-    <Reference Include="SQLite.Net.Platform.WindowsPhone8">
-      <HintPath>..\..\..\..\SQLite.Net-PCL\src\SQLite.Net.Platform.WindowsPhone8\Bin\x86\Release\SQLite.Net.Platform.WindowsPhone8.dll</HintPath>
-    </Reference>
-    <Reference Include="SQLite.Net.Platform.XamarinAndroid">
-      <HintPath>..\..\..\..\SQLite.Net-PCL\src\SQLite.Net.Platform.XamarinAndroid\bin\Release\SQLite.Net.Platform.XamarinAndroid.dll</HintPath>
-    </Reference>
-    <Reference Include="SQLite.Net.Platform.XamarinIOS">
-      <HintPath>..\..\..\..\SQLite.Net-PCL\src\SQLite.Net.Platform.XamarinIOS\bin\iPhone\Release\SQLite.Net.Platform.XamarinIOS.dll</HintPath>
-    </Reference>
-    <Reference Include="SQLite.Net.Platform.XamarinIOS.Unified">
-      <HintPath>..\..\..\..\SQLite.Net-PCL\src\SQLite.Net.Platform.XamarinIOS.Unified\bin\Release\SQLite.Net.Platform.XamarinIOS.Unified.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.SQLite">
-      <HintPath>..\..\..\..\SQLite.Net-PCL\src\SQLite.Net.Platform.Win32\bin\Release\System.Data.SQLite.dll</HintPath>
-    </Reference>
-  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -77,4 +48,9 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Reference Include="SQLite.Net">
+      <HintPath>..\lib\SQLite.Net.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

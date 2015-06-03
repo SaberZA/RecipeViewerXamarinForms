@@ -17,20 +17,6 @@ namespace RecipeViewerXamarinForms
 
         public App()
         {
-            // The root page of your application
-            //MainPage = new ContentPage
-            //{
-            //    Content = new StackLayout
-            //    {
-            //        VerticalOptions = LayoutOptions.Center,
-            //        Children = {
-            //            new Label {
-            //                XAlign = TextAlignment.Center,
-            //                Text = "Welcome to Xamarin Forms!"
-            //            }
-            //        }
-            //    }
-            //};
             MainPage = new MyPage();
         }
 
@@ -45,7 +31,10 @@ namespace RecipeViewerXamarinForms
             
             testSqlLiteAndroid.SetupTestDb();
             var recipesFromDb = testSqlLiteAndroid.GetRecipesFromDb();
-            Debug.WriteLine(String.Join(",",recipesFromDb.Select(p=>p.Name)));
+			var recipesString = String.Join (",", recipesFromDb.Select (p => p.Name));
+			Debug.WriteLine(recipesString);
+
+//			throw new Exception ("Raising Exception with data form DB: " + recipesString);
         }
 
         protected override void OnSleep()

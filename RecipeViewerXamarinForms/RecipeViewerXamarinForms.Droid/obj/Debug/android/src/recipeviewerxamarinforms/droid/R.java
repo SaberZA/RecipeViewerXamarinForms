@@ -12,10 +12,14 @@ public final class R {
     }
     public static final class drawable {
         public static final int icon=0x7f020000;
+        public static final int monoandroidsplash=0x7f020001;
     }
     public static final class string {
-        public static final int ApplicationName=0x7f030001;
-        public static final int Hello=0x7f030000;
-        public static final int library_name=0x7f030002;
+        public static final int ApplicationName=0x7f040001;
+        public static final int Hello=0x7f040000;
+        public static final int library_name=0x7f040002;
+    }
+    public static final class style {
+        public static final int Mono_Android_Theme_Splash=0x7f030000;
     }
 }

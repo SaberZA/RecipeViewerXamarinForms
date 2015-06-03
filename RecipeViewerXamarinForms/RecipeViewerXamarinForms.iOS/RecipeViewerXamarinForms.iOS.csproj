@@ -22,8 +22,6 @@
     <MtouchArch>i386, x86_64</MtouchArch>
     <MtouchLink>None</MtouchLink>
     <MtouchDebug>true</MtouchDebug>
-    <CodesignEntitlements>
-    </CodesignEntitlements>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
@@ -101,6 +99,7 @@
   <ItemGroup>
     <ProjectReference Include="..\RecipeViewerXamarinForms\RecipeViewerXamarinForms.csproj">
       <Name>RecipeViewerXamarinForms</Name>
+      <Project>{B6D4F934-A0D5-437D-8274-EB0683B2F461}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -125,12 +124,6 @@
     <Reference Include="Mindscape.Raygun4Net.Xamarin.iOS.Unified">
       <HintPath>..\..\packages\Mindscape.Raygun4Net.5.0.2\lib\Xamarin.iOS10\Mindscape.Raygun4Net.Xamarin.iOS.Unified.dll</HintPath>
     </Reference>
-    <Reference Include="SQLite.Net">
-      <HintPath>..\..\..\..\..\SQLite.Net-PCL\src\SQLite.Net\bin\Release\SQLite.Net.dll</HintPath>
-    </Reference>
-    <Reference Include="SQLite.Net.Platform.XamarinIOS.Unified">
-      <HintPath>..\..\..\..\..\SQLite.Net-PCL\src\SQLite.Net.Platform.XamarinIOS.Unified\bin\Release\SQLite.Net.Platform.XamarinIOS.Unified.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -144,6 +137,12 @@
       <HintPath>..\..\packages\Xamarin.Forms.1.3.3.6323\lib\Xamarin.iOS10\Xamarin.Forms.Xaml.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.iOS" />
+    <Reference Include="SQLite.Net">
+      <HintPath>..\..\lib\SQLite.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLite.Net.Platform.XamarinIOS">
+      <HintPath>..\..\lib\SQLite.Net.Platform.XamarinIOS.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
